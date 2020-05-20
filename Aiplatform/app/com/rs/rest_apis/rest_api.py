@@ -19,9 +19,9 @@ my_logger.setLevel(logging.DEBUG)
 # logging.basicConfig(level=logging.DEBUG, filename='sample.log')
 
 # Initialize files
-clf = pickle.load(open('data/model.pickle', 'rb'))
-enc = pickle.load(open('data/encoder.pickle', 'rb'))
-features = pickle.load(open('data/features.pickle', 'rb'))
+clf = pickle.load(open('../../../model/model.pickle', 'rb'))
+enc = pickle.load(open('../../../model/encoder.pickle', 'rb'))
+features = pickle.load(open('../../../model/features.pickle', 'rb'))
 
 
 class Data(BaseModel):
@@ -46,7 +46,7 @@ class Heartbeat_response(BaseModel):
 @app.post("/predict")
 def predict(data: Data):
     try:
-        # Extract data in correct order
+        # Extract model in correct order
         data_dict = data.dict()
         to_predict = [data_dict[feature] for feature in features]
 

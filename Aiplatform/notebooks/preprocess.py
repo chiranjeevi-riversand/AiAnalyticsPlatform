@@ -4,8 +4,8 @@ import pandas as pd
 from lightgbm import LGBMClassifier
 from sklearn.preprocessing import OneHotEncoder
 
-# Load data and save indices of columns
-df = pd.read_csv("data.csv")
+# Load model and save indices of columns
+df = pd.read_csv("../app/data/data.csv")
 features = df.drop('left', 1).columns
 pickle.dump(features, open('features.pickle', 'wb'))
 
