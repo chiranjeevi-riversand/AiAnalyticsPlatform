@@ -7,12 +7,12 @@ from sklearn.preprocessing import OneHotEncoder
 # Load model and save indices of columns
 df = pd.read_csv("../app/data/data.csv")
 features = df.drop('left', 1).columns
-pickle.dump(features, open('features.pickle', 'wb'))
+pickle.dump(features, open('../app/model/features.pickle', 'wb'))
 
 # Fit and save an OneHotEncoder
 columns_to_fit = ['sales', 'salary']
 enc = OneHotEncoder(sparse=False).fit(df.loc[:, columns_to_fit])
-pickle.dump(enc, open('encoder.pickle', 'wb'))
+pickle.dump(enc, open('../app/model/encoder.pickle', 'wb'))
 
 # Transform variables, merge with existing df and keep column names
 column_names = enc.get_feature_names(columns_to_fit)
@@ -23,4 +23,4 @@ df = pd.concat([df, encoded_variables], axis=1)
 # Fit and save model
 X, y = df.drop('left', 1), df.loc[:, 'left']
 clf = LGBMClassifier().fit(X, y)
-pickle.dump(clf, open('model.pickle', 'wb'))
+pickle.dump(clf, open('../app/model/model.pickle', 'wb'))
