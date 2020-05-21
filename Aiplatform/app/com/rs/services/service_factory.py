@@ -1,11 +1,11 @@
 from com.rs.services.ProductCategoryMatchService import ProductCategoryMatchService
-from com.rs.services.ProbabilisticMatchService import ProbabilisticMatchService
+from app.com.rs.services.ProbabilisticMatchService import ProbabilisticMatchService
 
 
 class ServiceFactory:
     def get_service(format):
         if format == 'probabilisticMatchService':
-            return ProbabilisticMatchService
+            return ProbabilisticMatchService()
         elif format == 'productCatergoyMatchService':
             return ProductCategoryMatchService()
         else:

@@ -1,6 +1,8 @@
 # Data Handling
 import logging
 import pickle
+from typing import List, Dict
+
 import numpy as np
 from pydantic import BaseModel
 
@@ -13,58 +15,58 @@ import lightgbm
 
 app = FastAPI()
 
+file_path = "D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model"
+
 # Initialize logging
 my_logger = logging.getLogger()
 my_logger.setLevel(logging.DEBUG)
 # logging.basicConfig(level=logging.DEBUG, filename='sample.log')
 
 # Initialize files
-clf = pickle.load(open('../../../model/model.pickle', 'rb'))
-enc = pickle.load(open('../../../model/encoder.pickle', 'rb'))
-features = pickle.load(open('../../../model/features.pickle', 'rb'))
+clf = pickle.load(open(file_path + '\\model.pickle', 'rb'))
+enc = pickle.load(open(file_path + '\\encoder.pickle', 'rb'))
+features = pickle.load(open(file_path + '\\features.pickle', 'rb'))
 
 
-class Data(BaseModel):
-    satisfaction_level: float
-    last_evaluation: float
-    number_project: float
-    average_montly_hours: float
-    time_spend_company: float
-    Work_accident: float
-    promotion_last_5years: float
-    sales: str
-    salary: str
+class RequestData(BaseModel):
+    id: str
+    data: Dict[str, str] = None
 
 
-class Heartbeat_response(BaseModel):
+class RequestItems(BaseModel):
+    items: List[RequestData] = None
+
+
+class ResponseData(BaseModel):
+    id: str
+    prediction: str
+    additional_parameter: Dict[str, str] = None
+
+
+class ResponseItems(BaseModel):
+    items: List[ResponseData] = None
+
+
+class HeartbeatResponse(BaseModel):
     heart_beat: str
 
-    def response(self):
-        heart_beat = "I am Up and running"
-        return heart_beat
 
-@app.post("/predict")
-def predict(data: Data):
+@app.post("/predict", response_model=ResponseItems)
+def predict(item: RequestItems):
     try:
         # Extract model in correct order
-        data_dict = data.dict()
-        to_predict = [data_dict[feature] for feature in features]
+        print("my input {}".format(item.json()))
 
-        # Apply one-hot encoding
-        encoded_features = list(enc.transform(np.array(to_predict[-2:]).reshape(1, -1))[0])
-        to_predict = np.array(to_predict[:-2] + encoded_features)
+        item = ResponseItems(items=[ResponseData(id='123', prediction='1')])
 
-        # Create and return prediction
-        prediction = clf.predict(to_predict.reshape(1, -1))
-        return {"prediction": int(prediction[0])}
+        return item.dict()
 
     except:
         my_logger.error("Something went wrong!")
         return {"prediction": "error"}
 
 
-@app.get("/", response_model= Heartbeat_response )
+@app.get("/", response_model=HeartbeatResponse)
 def heart_beat():
-    return {"heart_beat": "Good"}
-
-
+    hb = HeartbeatResponse(heart_beat={"heart_beat": "I am good "})
+    return hb.dict()
