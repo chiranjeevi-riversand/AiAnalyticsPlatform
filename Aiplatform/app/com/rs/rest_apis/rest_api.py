@@ -13,19 +13,20 @@ from fastapi import FastAPI
 # Modeling
 import lightgbm
 
+from Aiplatform.app.com.rs.cache_store.distributed_cache import read_config, open_cache_collection
+
 app = FastAPI()
 
-file_path = "D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model"
+
 
 # Initialize logging
 my_logger = logging.getLogger()
 my_logger.setLevel(logging.DEBUG)
+
+
 # logging.basicConfig(level=logging.DEBUG, filename='sample.log')
 
 # Initialize files
-clf = pickle.load(open(file_path + '\\model.pickle', 'rb'))
-enc = pickle.load(open(file_path + '\\encoder.pickle', 'rb'))
-features = pickle.load(open(file_path + '\\features.pickle', 'rb'))
 
 
 class RequestData(BaseModel):
@@ -49,6 +50,18 @@ class ResponseItems(BaseModel):
 
 class HeartbeatResponse(BaseModel):
     heart_beat: str
+
+
+@app.on_event("startup")
+async def startup_event():
+
+
+
+    config = read_config()
+    ac_cache=open_cache_collection(config.get('cb','host'),config.get('cb','user'),
+                          config.get('cb','pass'),config.get('autoClass','bucket'))
+
+
 
 
 @app.post("/predict", response_model=ResponseItems)

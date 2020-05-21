@@ -1,5 +1,6 @@
 __init__.py
-.idea/
+.idea
 __pycache__/
 notebooks/.ipynb_checkpoints
 *.pickle
+*.csv
