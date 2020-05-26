@@ -1,18 +1,16 @@
 # Data Handling
 import logging
-from typing import List, Dict, Union
+from typing import List, Dict
 
 # Server
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette import status
 
-from Aiplatform.app.com.rs.cache_store.couchbase_cache import CouchBaseCache
-from Aiplatform.app.com.rs.cache_store.distributed_cache import load_cache_factory
-
-from fastapi.responses import JSONResponse
+from Aiplatform.app.com.rs.cache_store.cache_factory import CacheFactory
 # Modeling
-from Aiplatform.app.com.rs.cache_store.product_taxonomy_cache import ProductTaxonomyCache
+from Aiplatform.app.com.rs.config.load_config import ConfigReader
 from Aiplatform.app.com.rs.exception.keynotfoundexception import KeyNotFoundException
 
 app = FastAPI()
@@ -57,14 +55,13 @@ class ConfigRequestData(BaseModel):
 async def key_not_found_exception_handler(request: Request, exc: KeyNotFoundException):
     return JSONResponse(
         status_code=404,
-        content={"message": f"Oops! Key {exc.name} not found .."}
+        content={"message": f"Oops! tenant setup : {exc.name} not found .."}
     )
 
 @app.on_event("startup")
 async def startup_event():
-    cache: Union[ProductTaxonomyCache, CouchBaseCache] = load_cache_factory("local")
-    print("My Cache size --> {}".format(cache.size))
-    print("My Cache contains classifier --> {}".format(cache.__contains__("classifier")))
+    ConfigReader.getInstance()
+    CacheFactory.getInstance()
 
 
 @app.post("/productTaxonomy/real/predict", response_model=ResponseItems)
@@ -94,14 +91,11 @@ async def batch_predict(item: RequestItems):
 
 @app.get("/productTaxonomy/config/{tenant}", response_model=ConfigRequestData)
 def get_config(tenant):
+    cache = CacheFactory.getInstance().get_cache_type()
+    if cache.get(tenant) is None:
+        raise KeyNotFoundException(name=tenant, code = 404)
 
-    if cache.__contains__(tenant) :
-        tenant_config = ConfigRequestData(cache.get(tenant))
-    else:
-        raise KeyNotFoundException(tenant)
-
-    return tenant_config.dict()
-
+    return cache.get(tenant)
 
 @app.post("/productTaxonomy/config", response_model=ConfigRequestData , status_code=status.HTTP_201_CREATED)
 def update_config(tenant_config : ConfigRequestData):
@@ -118,6 +112,7 @@ def update_config(tenant_config : ConfigRequestData):
     #           "postprocess": ["postprocess_1.py", "prostprocess.py"],
     #           "model_file": ["model.pkl"]}
 
+    cache = CacheFactory.getInstance().get_cache_type()
     cache.update(tenant_config.tenant, tenant_config.dict())
-
-    return tenant_config
+    myte = cache.get(tenant_config.tenant)
+    return myte

@@ -1,20 +1,34 @@
-import os
-from configparser import ConfigParser
+from __future__ import annotations
+
+from typing import Optional
 
 from couchbase.cluster import Cluster, ClusterOptions
 from couchbase_core.cluster import PasswordAuthenticator
 
-from Aiplatform.app.com.rs.cache_store.interface_file_cache import ICache
+from Aiplatform.app.com.rs.config.load_config import ConfigReader
 
 
-class CouchBaseCache(ICache):
-    file_path = "D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model"
+class CouchBaseCacheMeta(type):
+    _instance: Optional[CouchBaseCache] = None
+    _cluster: Cluster = None
 
-    def __init__(self):
-        config = self.read_config()
-        self.cluster = self.open_cache_collection(config.get('cb', 'host'), config.get('cb', 'user'),
-                                                  config.get('cb', 'pass'), config.get('autoClass', 'bucket'))
+    def __call__(self) -> CouchBaseCache:
+        if self._instance is None:
+            self._instance = super().__call__()
+        return self._instance
 
-    def open_cache_collection(self, host, user, passwd):
-        Cluster('couchbase://' + host, ClusterOptions(PasswordAuthenticator(user, passwd)))
 
+class CouchBaseCache(metaclass=CouchBaseCacheMeta):
+
+    def initialize(self):
+        """
+        Finally, any singleton should define some business logic, which can be
+        executed on its instance.
+        """
+    config = ConfigReader.getInstance().config
+    print("initialize the Couchbase --> {}".format(dict(config)))
+    host = config.get("cache.couchbase", 'host')
+    user = config.get("cache.couchbase", 'user')
+    passwd = config.get("cache.couchbase", 'passwd')
+
+    ##super._cluster = Cluster('couchbase://' + host, ClusterOptions(PasswordAuthenticator(user, passwd)))

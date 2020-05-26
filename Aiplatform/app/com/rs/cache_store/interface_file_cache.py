@@ -7,7 +7,7 @@ class ICache(object):
     def __init__(self):
         """Constructor"""
         self.cache = {}
-        self.max_cache_size = 20
+        self.max_cache_size = 3000
 
     def __contains__(self, key):
         """
@@ -30,9 +30,10 @@ class ICache(object):
         """
         Return the cached data else return None
         """
-        if __contains__(key):
-            self.cache[key]
+        if self.__contains__(key):
+            return self.cache[key]['value']
         else:
+            print("Doesn't contain : --> ")
             return None
 
     def remove_oldest(self):
