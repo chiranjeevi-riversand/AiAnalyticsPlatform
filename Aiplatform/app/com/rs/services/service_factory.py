@@ -1,6 +1,4 @@
 
-
-
 class ServiceFactory:
     def get_service(format):
         if format == 'probabilisticMatchService':

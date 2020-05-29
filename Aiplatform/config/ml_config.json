@@ -1,0 +1,47 @@
+{
+	"tenant": [{
+			"id": "1",
+			"model": [ {
+				"status" : "ACTIVE",
+				"version": "v1",
+				"name": "product_taxonomy",
+				"class": "Aiplatform.app.com.rs.services.predictor.product_taxonomy.product_taxonomy_predict.TaxonomyPredictor",
+				"modelPath": "D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model",
+				"preprocess": {
+					"object": "preprocess.pkl"
+				},
+				"predictor": {
+					"object": "model.joblib"
+				}
+			},
+			{
+				"version": "v2",
+				"status" : "INACTIVE",
+				"name": "product_taxonomy",
+				"class": "Aiplatform.app.com.rs.services.predictor.product_taxonomy.product_taxonomy_predict.TaxonomyPredictor",
+				"modelPath": "D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model",
+				"preprocess": {
+					"object": "preprocess.pkl"
+				},
+				"predictor": {
+					"object": "model.joblib"
+				}
+			}]
+		},
+		{
+			"id": "2",
+			"model": {
+				"version": "v1",
+				"name": "product_taxonomy",
+				"class": "Aiplatform.app.com.rs.services.predictor.product_taxonomy.product_taxonomy_predict.TaxonomyPredictor",
+				"modelPath": "D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model",
+				"preprocess": {
+					"object": "preprocess.pkl"
+				},
+				"predictor": {
+					"object": "model.joblib"
+				}
+			}
+		}
+	]
+}
