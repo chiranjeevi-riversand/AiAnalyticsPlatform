@@ -18,7 +18,7 @@ class Predictor(object):
         raise NotImplementedError()
 
     @classmethod
-    def from_path(cls, model_dir):
+    def load_model_from_path(cls, model_dir):
         """Creates an instance of Predictor using the given path.
         Loading of the predictor should be done in this method.
         Args:

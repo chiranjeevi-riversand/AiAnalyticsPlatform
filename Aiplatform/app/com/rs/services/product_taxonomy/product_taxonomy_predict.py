@@ -16,17 +16,20 @@ class TaxonomyPredictor(Predictor):
         self._class_names = load_iris().target_names
 
     def predict(self, instances, **kwargs):
+        print("probabilities --> ", instances)
         inputs = np.asarray(instances)
         preprocessed_inputs = self._preprocessor.preprocess(inputs)
         if kwargs.get('probabilities'):
             probabilities = self._model.predict_proba(preprocessed_inputs)
+
             return probabilities.tolist()
         else:
             outputs = self._model.predict(preprocessed_inputs)
             return [self._class_names[class_num] for class_num in outputs]
 
     @classmethod
-    def from_path(cls, model_dir):
+    def load_model_from_path(cls, model_dir):
+        print("\n print model directory path --> \n ",model_dir)
         model_path = os.path.join(model_dir, 'model.joblib')
         model = joblib.load(model_path)
 

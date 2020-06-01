@@ -28,14 +28,12 @@ class CacheFactory():
         return self.__cache_type_instance
 
     def __load_cache_factory(self):
-        config = ConfigReader.getInstance().config
+        config = ConfigReader.getInstance().get_system_config_info()
         cache_type = config.get("cache.enabled", "cache")
-        model_path = config.get(cache_type, "file.path")
-        print("returning ProductTaxonomyCache {} ".format(model_path))
 
-        if cache_type == 'memory':
+        if cache_type == 'inMemory':
             self.__cache_type_instance = ProductTaxonomyCache().getInstance()
-        elif cache_type == 'couch':
-            self.__cache_type_instance =  CouchBaseCache()
+        elif cache_type == 'couchBase':
+            self.__cache_type_instance = CouchBaseCache()
         else:
             raise Exception("invalid Cache config --> ",cache_type)

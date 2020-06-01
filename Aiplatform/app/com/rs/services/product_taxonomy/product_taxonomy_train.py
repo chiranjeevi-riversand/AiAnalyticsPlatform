@@ -7,6 +7,7 @@ from sklearn.externals import joblib
 from Aiplatform.app.com.rs.services.product_taxonomy.product_taxonomy_preprocess import MySimpleScaler
 
 iris = load_iris()
+print(iris)
 scaler = MySimpleScaler()
 X = scaler.preprocess(iris.data)
 y = iris.target

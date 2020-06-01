@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from couchbase.cluster import Cluster, ClusterOptions
-from couchbase_core.cluster import PasswordAuthenticator
+from couchbase.cluster import Cluster
 
 from Aiplatform.app.com.rs.config.load_config import ConfigReader
 
@@ -25,10 +24,10 @@ class CouchBaseCache(metaclass=CouchBaseCacheMeta):
         Finally, any singleton should define some business logic, which can be
         executed on its instance.
         """
-    config = ConfigReader.getInstance().config
-    print("initialize the Couchbase --> {}".format(dict(config)))
-    host = config.get("cache.couchbase", 'host')
-    user = config.get("cache.couchbase", 'user')
-    passwd = config.get("cache.couchbase", 'passwd')
+  #  config = ConfigReader.getInstance().get_system_config_info()
+   # print("initialize the Couchbase --> {}".format(dict(config)))
+    # host = config.get("couchbase", 'host')
+    # user = config.get("couchbase", 'user')
+    # passwd = config.get("couchbase", 'passwd')
 
     ##super._cluster = Cluster('couchbase://' + host, ClusterOptions(PasswordAuthenticator(user, passwd)))

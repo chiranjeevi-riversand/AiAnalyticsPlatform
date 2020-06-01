@@ -1,18 +1,19 @@
 # Data Handling
 import logging
-from typing import List, Dict
-
 # Server
-from fastapi import FastAPI, Request
+import traceback
+
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 from starlette import status
 
+from Aiplatform.app.com.rs.bean import ResponseItems, ResponseData, ConfigRequestData, RequestItems
 from Aiplatform.app.com.rs.cache_store.cache_factory import CacheFactory
-# Modeling
 from Aiplatform.app.com.rs.config.load_config import ConfigReader
-from Aiplatform.app.com.rs.exception.keynotfoundexception import KeyNotFoundException
-from Aiplatform.app.com.rs.services.config_manager import ConfigManager
+from Aiplatform.app.com.rs.exception.raise_exception import KeyNotFoundException
+# Modeling
+from Aiplatform.app.com.rs.services.cache_manager import CacheServiceManager
+from Aiplatform.app.com.rs.services.tenant_config_manager import TenantConfigManager
 
 app = FastAPI()
 
@@ -21,43 +22,13 @@ my_logger = logging.getLogger()
 my_logger.setLevel(logging.DEBUG)
 
 
-# logging.basicConfig(level=logging.DEBUG, filename='sample.log')
+logging.basicConfig(level=logging.DEBUG, filename='sample.log')
 
 # Initialize files
 
 
-class RequestData(BaseModel):
-    id: str
-    data: Dict[str, str] = None
-
-
-class RequestItems(BaseModel):
-    items: List[RequestData] = None
-
-
-class ResponseData(BaseModel):
-    id: str
-    prediction: str
-    additional_parameter: Dict[str, str] = None
-
-
-class ResponseItems(BaseModel):
-    items: List[ResponseData] = None
-    count: int = None
-
-
-class ConfigRequestData(BaseModel):
-    tenant: str
-    version: str
-    model_name: str = "productTaxonomy"
-    model_blob_path: str
-    preprocess: List[str]
-    postprocess: List[str]
-    model_file: List[str]
-
-
 @app.exception_handler(KeyNotFoundException)
-async def key_not_found_exception_handler(request: Request, exc: KeyNotFoundException):
+async def key_not_found_exception_handler(exc: KeyNotFoundException):
     return JSONResponse(
         status_code=404,
         content={"message": f"Oops! tenant setup : {exc.name} not found .."}
@@ -68,54 +39,62 @@ async def key_not_found_exception_handler(request: Request, exc: KeyNotFoundExce
 async def startup_event():
     ConfigReader.getInstance()
     CacheFactory.getInstance()
+    pass
 
 
 @app.post("/api/{tenant}/productTaxonomy/{version}/real/predict", response_model=ResponseItems)
-def real_time_predict(item: RequestItems):
+def real_time_predict(tenant: str, version: str , items: RequestItems):
     try:
-        # Extract model in correct order
-        item = ResponseItems(items=[ResponseData(id='123', prediction="1", additional_parameter={"confidence": "90"})],
-                             count=1)
+        print("input -->", items.dict())
+        output = TenantConfigManager().tenant(tenant).version(version).model("product_taxonomy").extract(items).predict()
 
-        print("my input {}".format(item.json()))
-        return item.dict()
-    except:
+        lst = ([ResponseData(id=data.id, prediction=score) for data, score in zip(items.items, output)])
+
+        a = ResponseItems(items=lst, count=lst.__len__())
+
+        return a
+    except Exception as err:
+        traceback.print_exc()
+        my_logger.exception(err)
         my_logger.error("Something went wrong!")
-        return {"prediction": "error"}
+        #raise InternalServerException(name=tenant, code=404)
 
 
 @app.post("/api/{tenant}/productTaxonomy/{version}/batch/predict", response_model=ResponseItems)
-async def batch_predict(item: RequestItems):
+async def batch_predict(tenant: str, version: str ,items: RequestItems):
     try:
+        print("input -->", items.dict())
+        output = TenantConfigManager().tenant(tenant).version(version).model("product_taxonomy").extract(
+            items).predict()
 
-        print("my input {}".format(item.json()))
-        item = ResponseItems(items=[ResponseData(id='123', prediction='1', additional_parameter={"confidence": "90"})])
+        lst = ([ResponseData(id=data.id, prediction=score) for data, score in zip(items.items, output)])
 
+        a = ResponseItems(items=lst, count=lst.__len__())
 
-
-
-        return item.dict()
-    except:
+        return a
+    except Exception as err:
+        traceback.print_exc()
+        my_logger.exception(err)
         my_logger.error("Something went wrong!")
-        return {"prediction": "error"}
+        # raise InternalServerException(name=tenant, code=404)
 
 
-@app.get("/api/{tenant}/productTaxonomy/config", response_model=ConfigRequestData)
+@app.get("/api/{tenant}/productTaxonomy/config")
 def get_config(tenant):
-
-    conf = ConfigManager.get_config(tenant)
+    print(" -----> ", tenant)
+    conf = TenantConfigManager().tenant(tenant).given_tenant_get_model_info()  #CacheServiceManager.get_config(tenant)
     if conf is None:
         raise KeyNotFoundException(name=tenant, code=404)
 
     return conf
 
 
-@app.post("api/{tenant}/productTaxonomy/config", response_model=ConfigRequestData, status_code=status.HTTP_201_CREATED)
+@app.post("/api/{tenant}/productTaxonomy/config", response_model=ConfigRequestData, status_code=status.HTTP_201_CREATED)
 def update_config(tenant_config: ConfigRequestData):
     '''
     :param tenant_config:
     :return: Configuration required to setup product taxonomy classification.
     '''
-    ConfigManager.save_config(tenant_config)
-    myte = ConfigManager.get_config(tenant_config)
+    CacheServiceManager.save_config(tenant_config)
+    myte = CacheServiceManager.get_config(tenant_config)
     return myte
