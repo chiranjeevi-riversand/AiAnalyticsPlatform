@@ -1,4 +1,4 @@
-from Aiplatform.app.com.rs.cache_store.couchbase_cache import CouchBaseCache
+
 from Aiplatform.app.com.rs.cache_store.interface_file_cache import ICache
 from Aiplatform.app.com.rs.cache_store.product_taxonomy_cache import ProductTaxonomyCache
 from Aiplatform.app.com.rs.config.load_config import ConfigReader
@@ -33,7 +33,5 @@ class CacheFactory():
 
         if cache_type == 'inMemory':
             self.__cache_type_instance = ProductTaxonomyCache().getInstance()
-        elif cache_type == 'couchBase':
-            self.__cache_type_instance = CouchBaseCache()
         else:
             raise Exception("invalid Cache config --> ",cache_type)

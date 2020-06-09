@@ -94,7 +94,7 @@ class TenantConfigManager:
 
             predictor:Predictor = get_class(predictor_class).load_model_from_path(model_path)
 
-            ls = predictor.predict(self.__input_data,probabilities=True)
+            ls = predictor.predict(self.__input_data)
 
             return ls
         except Exception as err:
@@ -102,29 +102,3 @@ class TenantConfigManager:
             print("the code is broken ")
             traceback.print_exc()
 
-
-# with open(ConfigReader.config_file_root + ConfigReader.tenant_config_json_file) as f:
-#     data = json.load(f)
-#
-# lst_1 = [ match.value for match in (jsonpath_rw_ext.parse('tenants[?(id=1)].versions[?(status="INACTIVE")]').find(data))]
-#
-# lst_2 = [ match.value for match in (jsonpath_rw_ext.parse('tenants[?(id=1)].versions[?(id=="v1")]').find(data))]
-
-# lst = [match.value for match in (parse('tenants[*]').find(data))]
-# self.tenant_config_info =
-
-# $.tenants[?(@.id==1)].versions
-
-# $.tenants[?(@.id==1)].versions[?(@.id== 'v1')]
-
-# instances = [
-#   [6.7, 3.1, 4.7, 1.5],
-#   [4.6, 3.1, 1.5, 0.2],
-# ]
-#
-# t : Predictor= TenantConfigManager().tenant("1").version("v1").model("product_taxonomy").execute()
-#
-# print("--------> ",t.predict(instances))
-
-# for i in lst_2:
-#     print(i)

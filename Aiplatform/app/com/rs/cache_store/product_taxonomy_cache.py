@@ -1,13 +1,18 @@
+import os
+import pickle
+from typing import List
+
+from Aiplatform.app.com.rs.bean import ModelBean
 from Aiplatform.app.com.rs.cache_store.interface_file_cache import ICache
 from Aiplatform.app.com.rs.config.load_config import ConfigReader
 
 
 class ProductTaxonomyCache(ICache):
     __instance = None
+    __algo = "product_taxonomy"
+    __algo_info_config: List = ConfigReader.getInstance().get_algo_config_info_details()
 
-    # __product_taxonomy_config =  ConfigReader.getInstance().get_tenant_config_info()
-    #
-    # __path_pick_version: str = "tenants[?(id=$myTenant)].model[?(name=$myModel)]"
+    #__tenant_info = ConfigReader.getInstance().get_tenant_config_info()
 
     @staticmethod
     def getInstance():
@@ -21,21 +26,37 @@ class ProductTaxonomyCache(ICache):
         if ProductTaxonomyCache.__instance != None:
             pass
         else:
-            # system_config = ConfigReader.getInstance().config
-            # cache_type = system_config.get("cache.enabled", "cache")
-            # model_path = system_config.get(cache_type, "file.path")
-            # print("initializing singleton class ---> ProductTaxonomyCache {} {}".format(cache_type,model_path))
-
             super().__init__()
             ProductTaxonomyCache.__instance = self
-           # self.__load_cache()
+
+    def get_algo_info(self, tenant, version):
+        mb = ModelBean(tenant, self.__algo, version)
+        model_info = next((x for x in self.__algo_info_config if x.value == mb), None)
+        print(model_info)
+
+        predictor_class = model_info.get("class")
+        model_path = model_info.get("modelPath")
+        predictor_pkl = model_info.get("predictor").get("object")
+        preprocess_pkl = model_info.get("preprocess").get("object")
+
+        print(predictor_pkl, predictor_class, preprocess_pkl, model_path)
+
+        preprocessor_path = os.path.join(model_path, preprocess_pkl)
+        predictor_path = os.path.join(model_path, predictor_pkl)
 
 
-    # def __load_cache(self, file_path: str):
-    #     # clf = pickle.load(open(file_path + '\\model.pickle', 'rb'))
-    #     # enc = pickle.load(open(file_path + '\\encoder.pickle', 'rb'))
-    #     # features = pickle.load(open(file_path + '\\features.pickle', 'rb'))
-    #
-    #     self.update("classifier", clf)
-    #     self.update("onehotencoder", enc)
-    #     self.update("features", features)
+        with open(preprocessor_path, 'rb') as f:
+            preprocessor = pickle.load(f)
+
+        with open(predictor_path, 'rb') as f:
+            predictor = pickle.load(f)
+
+        self.update("info", model_info)
+        self.update("preprocessor", preprocessor)
+        self.update("predictor", predictor)
+
+        return model_info
+
+
+    def get_model_key(self,suffix):
+        return "PT_"+suffix

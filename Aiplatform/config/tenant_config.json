@@ -19,9 +19,21 @@
                             }
                         },
                         {
+                            "id":"v1",
+                            "status":"ACTIVE",
+                            "class":"Aiplatform.app.com.rs.services.INCORRECT.product_taxonomy_predict.TaxonomyPredictor",
+                            "modelPath":"D:\\INCORRECT\\AiAnalyticPlatform\\Aiplatform\\app\\com\\rs\\services\\INCORRECT",
+                            "preprocess":{
+                                "object":"preprocessor.pkl"
+                            },
+                            "predictor":{
+                                "object":"model.joblib"
+                            }
+                        },
+                        {
                             "id":"v2",
                             "status":"INACTIVE",
-                            "class":"Aiplatform.app.com.rs.services.product_taxonomy.product_taxonomy_predict.TaxonomyPredictor",
+                            "class":"Aiplatform.app.com.rs.services.product_taxonomy.product_taxonomy_predict_v2.TaxonomyPredictor",
                             "modelPath":"D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\com\\rs\\services\\product_taxonomy",
                             "preprocess":{
                                 "object":"preprocessor.pkl"
@@ -38,8 +50,8 @@
                         {
                             "id":"v1",
                             "status":"ACTIVE",
-                            "class":"Aiplatform.app.com.rs.services.product_taxonomy.product_taxonomy_predict.TaxonomyPredictor",
-                            "modelPath":"D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model",
+                            "class":"Aiplatform.app.com.rs.services.value_extraction.product_taxonomy_predict.TaxonomyPredictor",
+                            "modelPath":"D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\value_extraction",
                             "preprocess":{
                                 "object":"preprocessor.pkl"
                             },
@@ -50,8 +62,8 @@
                         {
                             "id":"v2",
                             "status":"INACTIVE",
-                            "class":"Aiplatform.app.com.rs.services.product_taxonomy.product_taxonomy_predict.TaxonomyPredictor",
-                            "modelPath":"D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\model",
+                            "class":"Aiplatform.app.com.rs.services.value_extraction.product_taxonomy_predict.TaxonomyPredictor",
+                            "modelPath":"D:\\Projects\\AiAnalyticPlatform\\Aiplatform\\app\\value_extraction",
                             "preprocess":{
                                 "object":"preprocessor.pkl"
                             },

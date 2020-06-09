@@ -10,7 +10,7 @@ from starlette import status
 from Aiplatform.app.com.rs.bean import ResponseItems, ResponseData, ConfigRequestData, RequestItems
 from Aiplatform.app.com.rs.cache_store.cache_factory import CacheFactory
 from Aiplatform.app.com.rs.config.load_config import ConfigReader
-from Aiplatform.app.com.rs.exception.raise_exception import KeyNotFoundException
+from Aiplatform.app.com.rs.exception.raise_exception import KeyNotFoundException, InternalServerException
 # Modeling
 from Aiplatform.app.com.rs.services.cache_manager import CacheServiceManager
 from Aiplatform.app.com.rs.services.tenant_config_manager import TenantConfigManager
@@ -25,14 +25,6 @@ my_logger.setLevel(logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG, filename='sample.log')
 
 # Initialize files
-
-
-@app.exception_handler(KeyNotFoundException)
-async def key_not_found_exception_handler(exc: KeyNotFoundException):
-    return JSONResponse(
-        status_code=404,
-        content={"message": f"Oops! tenant setup : {exc.name} not found .."}
-    )
 
 
 @app.on_event("startup")
@@ -57,7 +49,7 @@ def real_time_predict(tenant: str, version: str , items: RequestItems):
         traceback.print_exc()
         my_logger.exception(err)
         my_logger.error("Something went wrong!")
-        #raise InternalServerException(name=tenant, code=404)
+        raise InternalServerException(name=tenant, code=404)
 
 
 @app.post("/api/{tenant}/productTaxonomy/{version}/batch/predict", response_model=ResponseItems)
@@ -76,13 +68,13 @@ async def batch_predict(tenant: str, version: str ,items: RequestItems):
         traceback.print_exc()
         my_logger.exception(err)
         my_logger.error("Something went wrong!")
-        # raise InternalServerException(name=tenant, code=404)
+        raise InternalServerException(name=tenant, code=404)
 
 
 @app.get("/api/{tenant}/productTaxonomy/config")
 def get_config(tenant):
     print(" -----> ", tenant)
-    conf = TenantConfigManager().tenant(tenant).given_tenant_get_model_info()  #CacheServiceManager.get_config(tenant)
+    conf = TenantConfigManager().tenant(tenant).given_tenant_get_model_info()
     if conf is None:
         raise KeyNotFoundException(name=tenant, code=404)
 

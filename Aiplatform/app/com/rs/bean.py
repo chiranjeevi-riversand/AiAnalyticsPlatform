@@ -31,3 +31,27 @@ class ConfigRequestData(BaseModel):
     preprocess: List[str]
     postprocess: List[str]
     model_file: List[str]
+
+
+class ModelBean:
+    status = "ACTIVE"
+    def __init__(self, tenant, model_name, version, model_info):
+        self.tenant = tenant
+        self.model_name = model_name
+        self.version = version
+        self.model_info = model_info
+
+    def to_string(self):
+        print("tenant : {} \n model : {} \n version : {} \n status : {} \n info : {} "
+              .format(self.tenant,self.model_name,self.version,self.status,self.model_info))
+
+    def __eq__(self, obj):
+        return isinstance(obj, ModelBean) \
+               and obj.tenant == self.tenant \
+               and obj.model_name == self.model_name  \
+               and obj.version == self.version \
+               and obj.status == self.status
+
+    def __hash__(self):
+        return hash(self.tenant)+hash(self.model_name)+hash(self.version)+hash(self.status)
+
