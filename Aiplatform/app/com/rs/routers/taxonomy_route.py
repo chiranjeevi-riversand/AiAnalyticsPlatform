@@ -52,25 +52,6 @@ def real_time_predict(tenant: str, version: str , items: RequestItems):
         raise InternalServerException(name=tenant, code=404)
 
 
-@app.post("/api/{tenant}/productTaxonomy/{version}/batch/predict", response_model=ResponseItems)
-async def batch_predict(tenant: str, version: str ,items: RequestItems):
-    try:
-        print("input -->", items.dict())
-        output = TenantConfigManager().tenant(tenant).version(version).model("product_taxonomy").extract(
-            items).predict()
-
-        lst = ([ResponseData(id=data.id, prediction=score) for data, score in zip(items.items, output)])
-
-        a = ResponseItems(items=lst, count=lst.__len__())
-
-        return a
-    except Exception as err:
-        traceback.print_exc()
-        my_logger.exception(err)
-        my_logger.error("Something went wrong!")
-        raise InternalServerException(name=tenant, code=404)
-
-
 @app.get("/api/{tenant}/productTaxonomy/config")
 def get_config(tenant):
     print(" -----> ", tenant)
